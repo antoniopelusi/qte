@@ -1,37 +1,3 @@
-/* qte -- A very simple editor in less than 1-qte lines of code (as counted
- *         by "cloc"). Does not depend on libcurses, directly emits VT100
- *         escapes on the terminal.
- *
- * -----------------------------------------------------------------------
- *
- * Copyright (C) 2016 Salvatore Sanfilippo <antirez at gmail dot com>
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  *  Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *  *  Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 #define QTE_VERSION "0.0.1"
 
 #ifdef __linux__
@@ -119,19 +85,37 @@ static struct editorConfig E;
 
 enum KEY_ACTION
 {
-    KEY_NULL = 0,    /* NULL */
-    CTRL_C = 3,      /* Ctrl-c */
-    CTRL_D = 4,      /* Ctrl-d */
-    CTRL_F = 6,      /* Ctrl-f */
-    CTRL_H = 8,      /* Ctrl-h */
-    TAB = 9,         /* Tab */
-    CTRL_L = 12,     /* Ctrl+l */
-    ENTER = 13,      /* Enter */
-    CTRL_Q = 17,     /* Ctrl-q */
-    CTRL_S = 19,     /* Ctrl-s */
-    CTRL_U = 21,     /* Ctrl-u */
-    ESC = 27,        /* Escape */
-    BACKSPACE = 127, /* Backspace */
+    KEY_NULL = 0,
+    CTRL_A = 1,
+    CTRL_B = 2,
+    CTRL_C = 3,
+    CTRL_D = 4,
+    CTRL_E = 5,
+    CTRL_F = 6,
+    CTRL_G = 7,
+    CTRL_H = 8,
+    CTRL_I = 9,
+    CTRL_J = 10,
+    CTRL_K = 11,
+    CTRL_L = 12,
+    CTRL_M = 13,
+    CTRL_N = 14,
+    CTRL_O = 15,
+    CTRL_P = 16,
+    CTRL_Q = 17,
+    CTRL_R = 18,
+    CTRL_S = 19,
+    CTRL_T = 20,
+    CTRL_U = 21,
+    CTRL_V = 22,
+    CTRL_W = 23,
+    CTRL_X = 24,
+    CTRL_Y = 25,
+    CTRL_Z = 26,
+    TAB = CTRL_I,
+    ENTER = CTRL_M,
+    ESC = 27,
+    BACKSPACE = 127,
     /* The following are just soft codes, not really reported by the
      * terminal directly. */
     ARROW_LEFT = 1000,
@@ -192,6 +176,7 @@ char *C_HL_keywords[] = {
 /* python */
 char *PY_HL_extensions[] = {".py", NULL};
 char *PY_HL_keywords[] = {
+    /* Python Keywords */
     "def", "if", "while", "for", "break", "return", "continue", "else", "elif",
     "import", "try", "except", "in", "and", "or", "is", "not", "with", "as",
     "True", "False", "None", "class",
@@ -1523,14 +1508,11 @@ void editorProcessKeypress(int fd)
     int c = editorReadKey(fd);
     switch (c)
     {
-    case ENTER: /* Enter */
+    case ENTER:
         editorInsertNewline();
         break;
-    case CTRL_C: /* Ctrl-c */
-        /* We ignore ctrl-c, it can't be so simple to lose the changes
-         * to the edited file. */
-        break;
-    case CTRL_Q: /* Ctrl-q */
+
+    case CTRL_Q:
         /* Quit if the file was already saved. */
         if (E.dirty && quit_times)
         {
@@ -1542,25 +1524,31 @@ void editorProcessKeypress(int fd)
         }
         exit(0);
         break;
-    case CTRL_S: /* Ctrl-s */
+
+    case CTRL_S:
         editorSave();
         break;
+
     case CTRL_F:
         editorFind(fd);
         break;
-    case BACKSPACE: /* Backspace */
-    case CTRL_H:    /* Ctrl-h */
+
+    case BACKSPACE:
         editorDelChar();
         break;
+
     case DEL_KEY:
         editorInvDelChar();
         break;
+
     case END_KEY:
         E.cx = E.row[E.rowoff + E.cy].size;
         break;
+
     case HOME_KEY:
         E.cx = 0;
         break;
+
     case PAGE_UP:
     case PAGE_DOWN:
         if (c == PAGE_UP && E.cy != 0)
@@ -1580,11 +1568,36 @@ void editorProcessKeypress(int fd)
     case ARROW_RIGHT:
         editorMoveCursor(c);
         break;
-    case CTRL_L: /* ctrl+l, clear screen */
+
+    case CTRL_L:
         /* Just refresht the line as side effect. */
         break;
+
     case ESC:
         /* Nothing to do for ESC in this mode. */
+        break;
+
+    case CTRL_A:
+    case CTRL_B:
+    case CTRL_C:
+    case CTRL_D:
+    case CTRL_E:
+    case CTRL_G:
+    case CTRL_H:
+    case CTRL_J:
+    case CTRL_K:
+    case CTRL_N:
+    case CTRL_O:
+    case CTRL_P:
+    case CTRL_R:
+    case CTRL_T:
+    case CTRL_U:
+    case CTRL_V:
+    case CTRL_W:
+    case CTRL_X:
+    case CTRL_Y:
+    case CTRL_Z:
+        /* ignore this keys */
         break;
     default:
         editorInsertChar(c);
