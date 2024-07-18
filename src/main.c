@@ -34,6 +34,9 @@
 #define HL_HIGHLIGHT_STRINGS (1 << 0)
 #define HL_HIGHLIGHT_NUMBERS (1 << 1)
 
+#define ENTER_ALTERNATE_BUFFER "\x1b[?1049h"
+#define EXIT_ALTERNATE_BUFFER "\x1b[?1049l"
+
 #define TAB_SIZE 4
 
 struct editorSyntax
@@ -221,7 +224,7 @@ void disableRawMode(int fd)
 void editorAtExit(void)
 {
     disableRawMode(STDIN_FILENO);
-    fprintf(stdout, "\033c");
+    fprintf(stdout, EXIT_ALTERNATE_BUFFER);
 }
 
 /* Raw mode. */
@@ -1644,7 +1647,7 @@ void initEditor(void)
     E.dirty = 0;
     E.filename = NULL;
     E.syntax = NULL;
-    fprintf(stdout, "\033c");
+    fprintf(stdout, ENTER_ALTERNATE_BUFFER);
     fflush(stdout);
     updateWindowSize();
     signal(SIGWINCH, handleSigWinCh);
