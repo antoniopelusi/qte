@@ -14,10 +14,10 @@ compile:
 
 install: clean compile
 	echo "|> Install\n";
-	sudo cp qte /usr/bin;
+	sudo cp qte /usr/local/bin;
 
 uninstall:
 	echo "|> Uninstall\n";
 ifneq ("$(wildcard /usr/bin/qte)","")
-	sudo rm /usr/bin/qte;
+	sudo rm /usr/local/bin/qte;
 endif
